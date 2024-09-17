@@ -26,6 +26,8 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
+import android.os.PowerManager;
 import android.util.ArraySet;
 
 import androidx.annotation.StringRes;
@@ -714,6 +716,16 @@ final class TimerModel {
                 mAlarmManager.cancel(pi);
                 pi.cancel();
             }
+        } else if (nextExpiringTimer.getRemainingTime() <= 0) {
+            mContext.startService(intent);
+        } else if (nextExpiringTimer.getRemainingTime() < 5000) {
+            PowerManager.WakeLock wl = AlarmAlertWakeLock.createPartialWakeLock(mContext);
+            wl.acquire(nextExpiringTimer.getRemainingTime());
+            new Handler().postDelayed(new Runnable() {
+                public void run () {
+                    updateAlarmManager();
+                }
+            }, nextExpiringTimer.getRemainingTime());
         } else {
             // Update the existing timer expiration callback.
             final PendingIntent pi = PendingIntent.getService(mContext,
