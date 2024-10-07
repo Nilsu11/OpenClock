@@ -36,9 +36,28 @@ public final class Timer {
     static final long UNUSED = Long.MIN_VALUE;
 
     /**
-     * Orders timers by their IDs. Oldest timers are at the bottom. Newest timers are at the top.
+     * Sorts timers by their creation date (i.e. IDs). Oldest timers are at the bottom. Newest timers are at the top.
      */
-    static final Comparator<Timer> ID_COMPARATOR = (timer1, timer2) -> Integer.compare(timer2.getId(), timer1.getId());
+    public static final Comparator<Timer> ID_COMPARATOR = (timer1, timer2) ->
+            Integer.compare(timer2.getId(), timer1.getId());
+
+    /**
+     * Sorts timers in ascending order of duration.
+     */
+    public static final Comparator<Timer> ASCENDING_DURATION_COMPARATOR = (timer1, timer2) ->
+            Long.compare(-timer2.getLength(), -timer1.getLength());
+
+    /**
+     * Sorts timers in descending order of duration.
+     */
+    public static final Comparator<Timer> DESCENDING_DURATION_COMPARATOR = (timer1, timer2) ->
+            Long.compare(timer2.getLength(), timer1.getLength());
+
+    /**
+     * Sorts timers by their name.
+     */
+    public static final Comparator<Timer> NAME_COMPARATOR = (timer1, timer2) ->
+            CharSequence.compare(timer1.getLabel().toLowerCase(Locale.ROOT), timer2.getLabel().toLowerCase(Locale.ROOT));
 
     /**
      * Orders timers by their expected/actual expiration time. The general order is:

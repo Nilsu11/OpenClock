@@ -11,6 +11,10 @@ import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.TRANSLATION_Y;
 import static android.view.View.VISIBLE;
+import static com.best.deskclock.settings.TimerSettingsActivity.KEY_SORT_TIMERS_BY_ASCENDING_DURATION;
+import static com.best.deskclock.settings.TimerSettingsActivity.KEY_SORT_TIMERS_BY_CREATION_DATE;
+import static com.best.deskclock.settings.TimerSettingsActivity.KEY_SORT_TIMERS_BY_DESCENDING_DURATION;
+import static com.best.deskclock.settings.TimerSettingsActivity.KEY_SORT_TIMERS_BY_NAME;
 import static com.best.deskclock.uidata.UiDataModel.Tab.TIMERS;
 
 import android.animation.Animator;
@@ -47,6 +51,8 @@ import com.best.deskclock.events.Events;
 import com.best.deskclock.uidata.UiDataModel;
 
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Displays a vertical list of timers in all states.
@@ -69,10 +75,13 @@ public final class TimerFragment extends DeskClockFragment {
 
     private TimerSetupView mCreateTimerView;
     private TimerAdapter mAdapter;
+    private List<Timer> mTimerList;
 
     private View mTimersView;
     private View mCurrentView;
     private RecyclerView mRecyclerView;
+
+    private String mTimerSortingPreference;
 
     private Serializable mTimerSetupState;
 
@@ -102,6 +111,10 @@ public final class TimerFragment extends DeskClockFragment {
         final View view = inflater.inflate(R.layout.timer_fragment, container, false);
 
         mContext = requireContext();
+
+        mTimerList = DataModel.getDataModel().getTimers();
+
+        mTimerSortingPreference = DataModel.getDataModel().getTimerSortingPreference();
 
         TimerClickHandler timerClickHandler = new TimerClickHandler(this);
         mAdapter = new TimerAdapter(timerClickHandler);
@@ -266,7 +279,7 @@ public final class TimerFragment extends DeskClockFragment {
             try {
                 // Create the new timer.
                 final long timerLength = mCreateTimerView.getTimeInMillis();
-                String getDefaultTimeToAddToTimer = String.valueOf(DataModel.getDataModel().getDefaultTimeToAddToTimer());
+                String getDefaultTimeToAddToTimer = DataModel.getDataModel().getDefaultTimeToAddToTimer();
                 final Timer timer = DataModel.getDataModel().addTimer(timerLength, "",
                         getDefaultTimeToAddToTimer, false);
                 Events.sendTimerEvent(R.string.action_create, R.string.label_deskclock);
@@ -274,8 +287,6 @@ public final class TimerFragment extends DeskClockFragment {
                 // Start the new timer.
                 DataModel.getDataModel().startTimer(timer);
                 Events.sendTimerEvent(R.string.action_start, R.string.label_deskclock);
-
-
             } finally {
                 mCreatingTimer = false;
             }
@@ -327,6 +338,9 @@ public final class TimerFragment extends DeskClockFragment {
 
         // Update the fab and buttons.
         updateFab(updateTypes);
+
+        // Sort timers according to timer settings.
+        sortTimers();
 
         // Start animating the timers.
         startUpdatingTime();
@@ -427,6 +441,20 @@ public final class TimerFragment extends DeskClockFragment {
                 return true;
             }
         });
+    }
+
+    private void sortTimers() {
+        if (mTimerList.size() > 1) {
+            switch (mTimerSortingPreference) {
+                case KEY_SORT_TIMERS_BY_CREATION_DATE ->
+                        Collections.sort(mTimerList, Timer.ID_COMPARATOR);
+                case KEY_SORT_TIMERS_BY_ASCENDING_DURATION ->
+                        Collections.sort(mTimerList, Timer.ASCENDING_DURATION_COMPARATOR);
+                case KEY_SORT_TIMERS_BY_DESCENDING_DURATION ->
+                        Collections.sort(mTimerList, Timer.DESCENDING_DURATION_COMPARATOR);
+                case KEY_SORT_TIMERS_BY_NAME -> Collections.sort(mTimerList, Timer.NAME_COMPARATOR);
+            }
+        }
     }
 
     private boolean hasTimers() {

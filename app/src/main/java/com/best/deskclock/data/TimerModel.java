@@ -10,6 +10,10 @@ import static android.app.AlarmManager.ELAPSED_REALTIME_WAKEUP;
 import static android.text.format.DateUtils.MINUTE_IN_MILLIS;
 import static com.best.deskclock.data.Timer.State.EXPIRED;
 import static com.best.deskclock.data.Timer.State.RESET;
+import static com.best.deskclock.settings.TimerSettingsActivity.KEY_SORT_TIMERS_BY_ASCENDING_DURATION;
+import static com.best.deskclock.settings.TimerSettingsActivity.KEY_SORT_TIMERS_BY_CREATION_DATE;
+import static com.best.deskclock.settings.TimerSettingsActivity.KEY_SORT_TIMERS_BY_DESCENDING_DURATION;
+import static com.best.deskclock.settings.TimerSettingsActivity.KEY_SORT_TIMERS_BY_NAME;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -196,21 +200,21 @@ final class TimerModel {
      * @return all defined timers in their creation order
      */
     List<Timer> getTimers() {
-        return Collections.unmodifiableList(getMutableTimers());
+        return getMutableTimers();
     }
 
     /**
      * @return all expired timers in their expiration order
      */
     List<Timer> getExpiredTimers() {
-        return Collections.unmodifiableList(getMutableExpiredTimers());
+        return getMutableExpiredTimers();
     }
 
     /**
      * @return all missed timers in their expiration order
      */
     private List<Timer> getMissedTimers() {
-        return Collections.unmodifiableList(getMutableMissedTimers());
+        return getMutableMissedTimers();
     }
 
     /**
@@ -491,9 +495,16 @@ final class TimerModel {
     }
 
     /**
+     * @return the timer order by creation date, by name, in ascending order of duration or in descending order of duration
+     */
+    String getTimerSortingPreference() {
+        return mSettingsModel.getTimerSortingPreference();
+    }
+
+    /**
      * @return the default minutes or hour to add to timer when the "Add Minute Or Hour" button is clicked.
      */
-    int getDefaultTimeToAddToTimer() {
+    String getDefaultTimeToAddToTimer() {
         return mSettingsModel.getDefaultTimeToAddToTimer();
     }
 
@@ -514,7 +525,15 @@ final class TimerModel {
     private List<Timer> getMutableTimers() {
         if (mTimers == null) {
             mTimers = TimerDAO.getTimers(mPrefs);
-            Collections.sort(mTimers, Timer.ID_COMPARATOR);
+            if (getTimerSortingPreference().equals(KEY_SORT_TIMERS_BY_CREATION_DATE)) {
+                Collections.sort(mTimers, Timer.ID_COMPARATOR);
+            } else if (getTimerSortingPreference().equals(KEY_SORT_TIMERS_BY_ASCENDING_DURATION)) {
+                Collections.sort(mTimers, Timer.ASCENDING_DURATION_COMPARATOR);
+            } else if (getTimerSortingPreference().equals(KEY_SORT_TIMERS_BY_DESCENDING_DURATION)) {
+                Collections.sort(mTimers, Timer.DESCENDING_DURATION_COMPARATOR);
+            } else if (getTimerSortingPreference().equals(KEY_SORT_TIMERS_BY_NAME)) {
+                Collections.sort(mTimers, Timer.NAME_COMPARATOR);
+            }
         }
 
         return mTimers;

@@ -56,6 +56,7 @@ import static com.best.deskclock.settings.ScreensaverSettingsActivity.KEY_SCREEN
 import static com.best.deskclock.settings.ScreensaverSettingsActivity.KEY_SCREENSAVER_NEXT_ALARM_IN_BOLD;
 import static com.best.deskclock.settings.ScreensaverSettingsActivity.KEY_SCREENSAVER_NEXT_ALARM_IN_ITALIC;
 import static com.best.deskclock.settings.ScreensaverSettingsActivity.KEY_SCREENSAVER_SECONDS_HAND_COLOR_PICKER;
+import static com.best.deskclock.settings.TimerSettingsActivity.KEY_SORT_TIMERS_BY_CREATION_DATE;
 import static com.best.deskclock.settings.TimerSettingsActivity.KEY_TRANSPARENT_BACKGROUND_FOR_EXPIRED_TIMER;
 
 import static java.util.Calendar.MONDAY;
@@ -389,12 +390,19 @@ final class SettingsDAO {
     }
 
     /**
+     * @return the timer order by creation date, by name, in ascending order of duration or in descending order of duration
+     */
+    static String getTimerSortingPreference(SharedPreferences prefs) {
+        // Default value must match the one in res/xml/settings_timer.xml
+        return prefs.getString(TimerSettingsActivity.KEY_SORT_TIMERS, KEY_SORT_TIMERS_BY_CREATION_DATE);
+    }
+
+    /**
      * @return the default minutes or hour to add to timer when the "Add Minute Or Hour" button is clicked.
      */
-    static int getDefaultTimeToAddToTimer(SharedPreferences prefs) {
+    static String getDefaultTimeToAddToTimer(SharedPreferences prefs) {
         // Default value must match the one in res/xml/settings_timer.xml
-        final String string = prefs.getString(TimerSettingsActivity.KEY_DEFAULT_TIME_TO_ADD_TO_TIMER, "1");
-        return Integer.parseInt(string);
+        return prefs.getString(TimerSettingsActivity.KEY_DEFAULT_TIME_TO_ADD_TO_TIMER, "1");
     }
 
     /**

@@ -1015,6 +1015,23 @@
     <string name="timer_settings_summary">Set default ringtone and volume for timers</string>
     <!-- Description for timer vibration. -->
     <string name="timer_vibrate_title">Timer vibrate</string>
+    <!-- Title to sort timers -->
+    <string name="sort_timer_title">Sort timers</string>
+    <!-- Entries listed in the ListPreference when invoking the timer sort preference -->
+    <string-array name="sort_timer_entries">
+        <item>by creation date (oldest at the bottom)</item>
+        <item>by duration (ascending order)</item>
+        <item>by duration (descending order)</item>
+        <item>by name</item>
+    </string-array>
+    <!-- Values that are retrieved from the ListPreference. These must match
+ the sort_timer_entries above. -->
+    <string-array name="sort_timer_values" translatable="false">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
     <!-- Default time to add to timer preference title in the settings -->
     <string name="default_time_to_add_to_timer_title">Default time to add to timer</string>
     <!-- Entries listed in the ListPreference when invoking the default time to add to timer preference -->

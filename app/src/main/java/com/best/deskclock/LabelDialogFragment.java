@@ -8,6 +8,8 @@ package com.best.deskclock;
 
 import static android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE;
 
+import static com.best.deskclock.settings.TimerSettingsActivity.KEY_SORT_TIMERS_BY_NAME;
+
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -34,6 +36,8 @@ import com.best.deskclock.data.DataModel;
 import com.best.deskclock.data.Timer;
 import com.best.deskclock.provider.Alarm;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -185,6 +189,21 @@ public class LabelDialogFragment extends DialogFragment {
         }
     }
 
+    private void sortTimersByName() {
+        if (mTimerId >= 0) {
+            final Timer timer = DataModel.getDataModel().getTimer(mTimerId);
+            if (timer != null) {
+                String timerSortingPreference = DataModel.getDataModel().getTimerSortingPreference();
+                List<Timer> getTimers = DataModel.getDataModel().getTimers();
+                if (getTimers.size() > 1) {
+                    if (timerSortingPreference.equals(KEY_SORT_TIMERS_BY_NAME)) {
+                        Collections.sort(getTimers, Timer.NAME_COMPARATOR);
+                    }
+                }
+            }
+        }
+    }
+
     public interface AlarmLabelDialogHandler {
         void onDialogLabelSet(Alarm alarm, String label, String tag);
     }
@@ -215,6 +234,7 @@ public class LabelDialogFragment extends DialogFragment {
         public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 setLabel();
+                sortTimersByName();
                 dismissAllowingStateLoss();
                 return true;
             }
@@ -230,6 +250,7 @@ public class LabelDialogFragment extends DialogFragment {
         public void onClick(DialogInterface dialog, int which) {
             mInput.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, InputMethodManager.HIDE_IMPLICIT_ONLY);
             setLabel();
+            sortTimersByName();
             dismiss();
         }
     }
