@@ -6,6 +6,11 @@
 
 package com.best.deskclock.timer;
 
+import static com.best.deskclock.settings.TimerSettingsActivity.KEY_SORT_TIMERS_BY_ASCENDING_DURATION;
+import static com.best.deskclock.settings.TimerSettingsActivity.KEY_SORT_TIMERS_BY_CREATION_DATE;
+import static com.best.deskclock.settings.TimerSettingsActivity.KEY_SORT_TIMERS_BY_DESCENDING_DURATION;
+import static com.best.deskclock.settings.TimerSettingsActivity.KEY_SORT_TIMERS_BY_NAME;
+
 import android.content.Context;
 import android.util.ArrayMap;
 import android.view.LayoutInflater;
@@ -20,6 +25,7 @@ import com.best.deskclock.data.Timer;
 import com.best.deskclock.data.TimerListener;
 import com.best.deskclock.R;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -89,6 +95,18 @@ class TimerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> impleme
     }
 
     private List<Timer> getTimers() {
-        return DataModel.getDataModel().getTimers();
+        List<Timer> timers = DataModel.getDataModel().getTimers();
+        if (timers.size() > 1) {
+            switch (DataModel.getDataModel().getTimerSortingPreference()) {
+                case KEY_SORT_TIMERS_BY_CREATION_DATE ->
+                        Collections.sort(timers, Timer.ID_COMPARATOR);
+                case KEY_SORT_TIMERS_BY_ASCENDING_DURATION ->
+                        Collections.sort(timers, Timer.ASCENDING_DURATION_COMPARATOR);
+                case KEY_SORT_TIMERS_BY_DESCENDING_DURATION ->
+                        Collections.sort(timers, Timer.DESCENDING_DURATION_COMPARATOR);
+                case KEY_SORT_TIMERS_BY_NAME -> Collections.sort(timers, Timer.NAME_COMPARATOR);
+            }
+        }
+        return timers;
     }
 }
